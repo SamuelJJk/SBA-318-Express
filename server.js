@@ -6,24 +6,24 @@ const main = require('./data/main')
 const sides = require('./data/sides')
 const beverages = require('./data/beverage')
 const log = require('./middleware/log')
-const check = require('./middleware/check')
+const auth = require('./middleware/auth')
 //--------------[setup]
 
 app.use(log)
 
 //---------[middleware]
 
-app.get('/api/main', (req,res) =>{
+app.get('/api/main', auth, (req,res) =>{
     res.json(main)
 })
-app.get('/api/sides', (req,res) =>{
+app.get('/api/sides', auth, (req,res) =>{
     res.json(sides)
 })
-app.get('/api/beverages', (req,res) =>{
+app.get('/api/beverages',auth, (req,res) =>{
     res.json(beverages)
 })
 
-app.get('/api/main/:id',(req,res)=>{
+app.get('/api/main/:id', auth ,(req,res)=>{
     res.json(main.filter(main => main.id === parseInt(req.params.id)))
 })
 //----------[data]
