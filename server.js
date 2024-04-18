@@ -2,11 +2,14 @@ const express = require('express');
 const app = express();
 PORT = process.env.PORT || 3000;
 
-const main = require('./data/main.js')
-const main = require('./data/sides.js')
-const main = require('./data/beverage.js')
+const main = require('./data/main')
+// const sides = require('./data/sides')
+// const beverages = require('./data/beverage')
 
 //----------[data]
+app.get('/api/main', (req,res) =>{
+    res.json(main)
+})
 
 //---------[middleware]
 
