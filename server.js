@@ -1,8 +1,9 @@
 const express = require('express');
-const app = express();
+const app = express('uuid');
+const uuid = require
 PORT = process.env.PORT || 3000;
 
-const main = require('./data/main')
+const main = require('./data/main') 
 const sides = require('./data/sides')
 const beverages = require('./data/beverage')
 const log = require('./middleware/log')
@@ -10,6 +11,10 @@ const auth = require('./middleware/auth')
 //--------------[setup]
 
 app.use(log)
+// app.use('/api/main', require('./routes/paths')) 
+
+app.use(express.json());
+app.use(express.urlencoded({extended: false }));
 
 //---------[middleware]
 
@@ -26,8 +31,56 @@ app.get('/api/beverages',auth, (req,res) =>{
 app.get('/api/main/:id', auth ,(req,res)=>{
     res.json(main.filter(main => main.id === parseInt(req.params.id)))
 })
-//----------[data]
 
+// create new main dish
+app.post('/api/main', (req,res)=>{
+    const newMain = {
+        id: req.body.id,
+        name: req.body.name,
+        calories: req.body.calories
+    }
+    if(!newMain.name || !newMain.calories || !newMain.id){
+       return res.status(400).json({msg: 'include a name and calories'})
+    }
+    main.push(newMain)
+    res.json(main)
+
+})
+
+app.delete("/api/sides/:id", (req,res)=>{
+    const id = parseInt(req.params.id)
+    const deleteSides = sides.find(sides => sides.id === id)
+    const index = sides.indexOf(deleteSides)
+
+    sides.splice(index, 1)
+    res.json(sides)
+})
+
+
+//----------[data]
+app.engine('perscholas', (filePath, options, callback) => {
+    fileSystem.readFile(filePath, (err, content) => {
+      if (err) return callback(err);
+  
+      const rendered = content
+        .toString()
+        .replaceAll("#title#", `${options.title}`)
+        .replace("#content#", `${options.content}`);
+  
+      return callback(null, rendered);
+    })
+  })
+app.set('views', './views')
+app.set('view engine', 'perscholas')
+
+app.get('/', (req, res) => {
+  let options = {
+    title: 'This is an Express Template',
+    content: "Finally, a call to res.render() within the application's routes allows us to render the view..."
+  };
+
+  res.render('index', options)
+})
 
 //----------[View engine]
 
@@ -41,15 +94,10 @@ app.listen(PORT, ()=>{
 
 
 //----------[Requirments]
-//Create and use at least 2 piece of custom middleware
 
-// create and use error-handling middleware
-
-// Create post route for data, as approprate, At least one data catergory should allow for client creation via a post request 
+// create and use error-handling middleware 
 
 // Create PATCH or PUT routes for data, as appriprate. At least one data category allow for  client deletion via DELETE request.
-
-// adhere to the guiding principles of REST
 
 // Create and reder at leat one view using a view template and template engine.
 
